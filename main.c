@@ -8,17 +8,27 @@
 #define NUM	258
 
 // prototypes 
+int expr();
+int term();
+int factor();
 void error( char * );
 int get_token();
+void match( int );
+
+
+// global communication variables
+int current_token;
+int current_attribute;
 
 /* bounded memory calculator */
 int main()
 {
-	int current_token;
+	int value;
 
 	current_token = get_token();
 	while ( current_token != EOS ) {
-		current_token = get_token();
+		value = expr();
+		fprintf( stderr, "\nValue = %d\n", value );
 	}
 }
 
@@ -65,10 +75,21 @@ int factor()
 	}
 	else if ( current_token == NUM ) {
 		value = current_attribute;
+		match( NUM );
 		return value;
 	}
 	else error( "Unexpected token in factor()" );
+}
 
+/* match expected token */
+void match( int expected_token )
+{
+	if ( current_token == expected_token ) {
+		current_token = get_token();
+	}
+	else {
+		error("Unexpected token in match" );
+	}
 }
 
 
@@ -81,7 +102,9 @@ int get_token()
 	while (1) {
 		switch ( c = getchar() ) {
 		case '+': case '*': case '(': case ')':
+#ifdef DEBUG
 			fprintf( stderr, "[OP:%c]", c );
+#endif
 			return c;	// return operators and brackets as is
 		case ' ': case '\t':
 			continue;	// ignore spaces and tabs
@@ -92,7 +115,10 @@ int get_token()
 					value = value * 10 + (c - '0');
 				}
 				ungetc( c, stdin );
+#ifdef DEBUG
 				fprintf( stderr, "[NUM:%d]", value );
+#endif
+				current_attribute = value;
 				return NUM;
 			}
 			else if ( c == '\n' ) {

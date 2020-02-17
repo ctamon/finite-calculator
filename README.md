@@ -1,2 +1,2 @@
 # infinite-calculator
-An example of an unbounded memory calculator.
+Towards a (un)bounded memory calculator.
